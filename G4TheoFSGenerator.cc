@@ -114,7 +114,7 @@ G4HadFinalState * G4TheoFSGenerator::ApplyYourself(const G4HadProjectile & thePr
   G4KineticTrackVector * theInitialResult =
                theHighEnergyGenerator->Scatter(theNucleus, aPart);
 
-#define DEBUG_initial_result
+//#define DEBUG_initial_result
   #ifdef DEBUG_initial_result
   	  G4double E_out(0);
   	  G4IonTable * ionTable=G4ParticleTable::GetParticleTable()->GetIonTable();
@@ -162,14 +162,14 @@ G4HadFinalState * G4TheoFSGenerator::ApplyYourself(const G4HadProjectile & thePr
   G4V3DNucleus* theProjectileNucleus = theHighEnergyGenerator->GetProjectileNucleus(); 
 if(theProjectileNucleus == 0)                                       // Uzhi Nov. 2012
 {                                                                   // Uzhi Nov. 2012
-	G4cout<<"theProjectileNucleus == 0"<<G4endl;
+	//G4cout<<"theProjectileNucleus == 0"<<G4endl;
   G4int hitCount = 0;
   const std::vector<G4Nucleon>& they = theHighEnergyGenerator->GetWoundedNucleus()->GetNucleons();
   for(size_t them=0; them<they.size(); them++)
   {
     if(they[them].AreYouHit()) hitCount ++;
   }
-	G4cout<<"hitCount:"<<hitCount<<" "<<theHighEnergyGenerator->GetWoundedNucleus()->GetMassNumber()<<G4endl;
+	//G4cout<<"hitCount:"<<hitCount<<" "<<theHighEnergyGenerator->GetWoundedNucleus()->GetMassNumber()<<G4endl;
   if(hitCount != theHighEnergyGenerator->GetWoundedNucleus()->GetMassNumber() )
   {
     theTransport->SetPrimaryProjectile(thePrimary);	// For Bertini Cascade
@@ -180,7 +180,7 @@ if(theProjectileNucleus == 0)                                       // Uzhi Nov.
        throw G4HadronicException(__FILE__, __LINE__, "Null ptr from transport propagate");
 
     }
-			G4cout<<"hitCount!=GetMassNumber()"<<G4endl; 
+			//G4cout<<"hitCount!=GetMassNumber()"<<G4endl; 
   }
   else
   {
@@ -190,7 +190,7 @@ if(theProjectileNucleus == 0)                                       // Uzhi Nov.
        throw G4HadronicException(__FILE__, __LINE__, "Null ptr from decay propagate");
     }
 
-			G4cout<<"hitCount==GetMassNumber()"<<G4endl;    
+			//G4cout<<"hitCount==GetMassNumber()"<<G4endl;    
   }
 
 } else                                                              // Uzhi Nov. 2012
@@ -275,109 +275,163 @@ G4ReactionProductVector * G4TheoFSGenerator::GenerateDeuterons(G4ReactionProduct
 //
 //
 
-	//std::vector<std::pair<int, int>> moves
-	//std::pair <G4int, G4ThreeVector> foo;
-	vector<std::pair<G4int, G4ThreeVector>> * bar= new vector<std::pair<G4int, G4ThreeVector>>;
-	vector<G4int> * proton = new vector<G4int>;
-	vector<G4ThreeVector> * protonMom = new vector<G4ThreeVector>;
-	vector<G4int> * antiproton = new vector<G4int>;
-	vector<G4ThreeVector> * antiprotonMom = new vector<G4ThreeVector>;
-	vector<G4int> * neutron = new vector<G4int>;
-	vector<G4ThreeVector> * neutronMom = new vector<G4ThreeVector>;
-	vector<G4int> * antineutron = new vector<G4int>;
-	vector<G4ThreeVector> * antineutronMom = new vector<G4ThreeVector>;
+	vector<std::pair<G4int, G4ThreeVector>> * proton = new vector<std::pair<G4int, G4ThreeVector>>;
+	vector<std::pair<G4int, G4ThreeVector>> * neutron = new vector<std::pair<G4int, G4ThreeVector>>;
+	vector<std::pair<G4int, G4ThreeVector>> * antiproton = new vector<std::pair<G4int, G4ThreeVector>>;
+	vector<std::pair<G4int, G4ThreeVector>> * antineutron = new vector<std::pair<G4int, G4ThreeVector>>;
 
-	vector<G4int> * protom_del = new vector<G4int>;
-	vector<G4int> * neutron_del = new vector<G4int>;
-	vector<G4int> * antiprotom_del = new vector<G4int>;
-	vector<G4int> * antineutron_del = new vector<G4int>;
 
-   //i;
-	//G4LorentzVector v1;
-  for(unsigned int i=0; i<result->size(); i++)
-  {
+	G4cout<<" vector size begining: "<<result->size()<<G4endl;
 
-	G4int pdgid = result->operator[](i)->GetDefinition()->GetPDGEncoding();
+  	for(unsigned int i=0; i<result->size(); i++)
+  	{
+		G4int pdgid = result->operator[](i)->GetDefinition()->GetPDGEncoding();
 
-	if (pdgid == 2212){
-		//proton->push_back(i);
-		protonMom->push_back(result->operator[](i)->GetMomentum());
-		//G4double mproton = result->operator[](i)->GetDefinition()->GetPDGMass();
-		//G4cout<<"proton encontrado"<<G4endl;
-		//vec.SetVect(theTransportResult->operator[](i)->GetMomentum());
-		//vec.SetE(theTransportResult->operator[](i)->GetTotalEnergy());
-		delete result->operator[](i);
+		if (pdgid == 2212){
+			proton->push_back(make_pair(i, result->operator[](i)->GetMomentum()));
+			//delete result->operator[](i);
+			result->erase(result->begin()+i);
+		}
+  	}
+
+  	for(unsigned int i=0; i<result->size(); i++)
+  	{
+		G4int pdgid = result->operator[](i)->GetDefinition()->GetPDGEncoding();
+		if (pdgid == 2112){
+			neutron->push_back(make_pair(i, result->operator[](i)->GetMomentum()));
+			result->erase(result->begin()+i);
+		}
+  	}
+
+
+  	for(unsigned int i=0; i<result->size(); i++)
+  	{
+		G4int pdgid = result->operator[](i)->GetDefinition()->GetPDGEncoding();
+
+		if (pdgid == -2212){
+			antiproton->push_back(make_pair(i, result->operator[](i)->GetMomentum()));
+			cout<<"antiproton rejected: "<<i<<"	"<<result->operator[](i)->GetTotalEnergy()<<"		"<<result->operator[](i)->GetMomentum().mag()<<G4endl;
+			result->erase(result->begin()+i);
+		}
 	}
 
-	if (pdgid == -2212){
-		//antiproton->push_back(i);
-		antiprotonMom->push_back(result->operator[](i)->GetMomentum());
-		//G4cout<<"antiproton encontrado"<<G4endl;
-		delete result->operator[](i);
+  	for(unsigned int i=0; i<result->size(); i++)
+  	{
+		G4int pdgid = result->operator[](i)->GetDefinition()->GetPDGEncoding();
+
+		if (pdgid == -2112){
+			antineutron->push_back(make_pair(i, result->operator[](i)->GetMomentum()));
+			cout<<"antineutron rejected: "<<i<<"	"<<result->operator[](i)->GetTotalEnergy()<<"		"<<result->operator[](i)->GetMomentum().mag()<<G4endl;
+			result->erase(result->begin()+i);
+		}
 	}
 
-	if (pdgid == 2112){
-		//neutron->push_back(i);
-		neutronMom->push_back(result->operator[](i)->GetMomentum());
-		//G4double mneutron = result->operator[](i)->GetDefinition()->GetPDGMass();
-		//G4cout<<"neutron encontrado"<<G4endl;
-		delete result->operator[](i);
-	}
+	G4cout<<" vector size end: "<<result->size()<<G4endl;
 
-	if (pdgid == -2112){
-		//antineutron->push_back(i);
-		antineutronMom->push_back(result->operator[](i)->GetMomentum());
-		//G4cout<<"antineutron encontrado"<<G4endl;
-		delete result->operator[](i);
-	}
-
-  }
-
-	for(unsigned int i=0; i<proton->size(); ++i) // center of the sphere
+	for(unsigned int i=0; i<proton->size(); ++i) // loop over protons 
 	{
-		if(proton->at(i)==-1) continue;  // with next proton
+		if(proton->at(i).first==-1) continue;  // with next proton
 		
-		G4ThreeVector p1 = protonMom->at(i);
+		G4ThreeVector p1 = proton->at(i).second;
 
-		int partner1 = this->FindPartner(p1, G4Proton::Proton()->GetPDGMass(), neutron, neutronMom, G4Neutron::Neutron()->GetPDGMass());
+		int partner1 = this->FindPartner(p1, G4Proton::Proton()->GetPDGMass(), neutron, G4Neutron::Neutron()->GetPDGMass());
 		
-		if(partner1 == -1) continue; // with next proton
+		if(partner1 == -1) {
+			
+			G4ParticleDefinition* prt = G4ParticleTable::GetParticleTable()->FindParticle("proton");		
+			G4ReactionProduct * finalp = new G4ReactionProduct();
+			finalp->SetDefinition(prt);
+			G4double massp = prt->GetPDGMass();
+			G4double E = std::sqrt(p1.mag()*p1.mag()+massp*massp);	
+			finalp->SetMomentum(p1);
+			finalp->SetTotalEnergy(E);
+			finalp->SetMass(massp);	
+			result->push_back(finalp);		
+			continue; // with next proton
+		}
 		
-		G4ThreeVector p2 = neutronMom->at(partner1);
+		G4ThreeVector p2 = neutron->at(partner1).second;
 
-		this->PushDeuteron(proton->at(i), neutron->at(partner1), p1, p2, result, 1);
+		this->PushDeuteron(p1, p2, result, 1);
 
 		// tag the bound neutron
-		neutron->at(partner1) = -1;
-		
-		//++npart;
+		neutron->at(partner1).first = -1;
 	}
 
-	for(unsigned int i=0; i<antiproton->size(); ++i) // center of the sphere
+	for(unsigned int i=0; i<neutron->size(); ++i) // injecting unused neutrons 
 	{
-		if(antiproton->at(i)==-1) continue;  // with next proton
-		
-		G4ThreeVector p1 = antiprotonMom->at(i);
+		if(neutron->at(i).first==-1) continue;  // with next neutron
 
-		int partner1 = this->FindPartner(p1, G4Proton::Proton()->GetPDGMass(), antineutron, antineutronMom, G4Neutron::Neutron()->GetPDGMass());
+		G4ParticleDefinition* nrt = G4ParticleTable::GetParticleTable()->FindParticle("neutron");		
+		G4ReactionProduct * finaln = new G4ReactionProduct();//theTransportResult->operator[](i);
+		finaln->SetDefinition(nrt);
 		
-		if(partner1 == -1) continue; // with next proton
-		
-		G4ThreeVector p2 = antineutronMom->at(partner1);
-
-		this->PushDeuteron(antiproton->at(i), antineutron->at(partner1), p1, p2, result, -1);
-		
-		// tag the bound neutron
-		antineutron->at(partner1) = -1;
-		
-		//++npart;
+		G4ThreeVector p2 = neutron->at(i).second;
+		G4double massn = nrt->GetPDGMass();
+		G4double E = std::sqrt(p2.mag()*p2.mag()+massn*massn);	
+		finaln->SetMomentum(p2);
+		finaln->SetTotalEnergy(E);
+		finaln->SetMass(massn);	
+		result->push_back(finaln);			
 	}
 
+
+
+	for(unsigned int i=0; i<antiproton->size(); ++i) // loop over antiprotons
+	{
+		if(antiproton->at(i).first==-1) continue;  // with next antiproton
+		
+		G4ThreeVector p1 = antiproton->at(i).second;
+
+		int partner1 = this->FindPartner(p1, G4Proton::Proton()->GetPDGMass(), antineutron, G4Neutron::Neutron()->GetPDGMass());
+		
+		if(partner1 == -1) {
+			
+			G4ParticleDefinition* pbar = G4ParticleTable::GetParticleTable()->FindAntiParticle("proton");		
+			G4ReactionProduct * finalpbar = new G4ReactionProduct();
+			finalpbar->SetDefinition(pbar);
+
+			G4double massp = pbar->GetPDGMass();
+			G4double E = std::sqrt(p1.mag()*p1.mag()+massp*massp);	
+			cout<<"antiproton injected: "<<i<<"	"<<E<<"		"<<p1.mag()<<G4endl;
+			finalpbar->SetMomentum(p1);
+			finalpbar->SetTotalEnergy(E);
+			finalpbar->SetMass(massp);	
+			result->push_back(finalpbar);		
+			continue; // with next antiproton
+		}
+		
+		G4ThreeVector p2 = antineutron->at(partner1).second;
+
+		this->PushDeuteron(p1, p2, result, -1);
+		
+		// tag the bound antineutron
+		antineutron->at(partner1).first = -1;
+	}
+
+	for(unsigned int i=0; i<antineutron->size(); ++i) // injecting unused antineutrons 
+	{
+		if(antineutron->at(i).first==-1) continue;  // with next antineutron
+
+		G4ParticleDefinition* nbar = G4ParticleTable::GetParticleTable()->FindAntiParticle("neutron");		
+		G4ReactionProduct * finalnbar = new G4ReactionProduct();
+		finalnbar->SetDefinition(nbar);
+		G4ThreeVector p2 = antineutron->at(i).second;
+		G4double massn = nbar->GetPDGMass();
+		G4double E = std::sqrt(p2.mag()*p2.mag()+massn*massn);	
+		cout<<"antineutron injected: "<<i<<"	"<<E<<"		"<<p2.mag()<<G4endl;
+		finalnbar->SetMomentum(p2);
+		finalnbar->SetTotalEnergy(E);
+		finalnbar->SetMass(massn);	
+		result->push_back(finalnbar);			
+	}
+
+	return result;
 
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-G4int G4TheoFSGenerator::FindPartner(const G4ThreeVector& p1, G4double m1, vector<G4int> * Neutron, vector<G4ThreeVector> * NeutronMom, G4double m2) const
+G4int G4TheoFSGenerator::FindPartner(const G4ThreeVector& p1, G4double m1, vector<std::pair<G4int, G4ThreeVector>> * Neutron, G4double m2) const
 {
 //
 // find a nucleon partner within a sphere of radius p0 center at the proton
@@ -386,9 +440,9 @@ G4int G4TheoFSGenerator::FindPartner(const G4ThreeVector& p1, G4double m1, vecto
 
 		for(unsigned int j=0; j<Neutron->size(); ++j)
 		{
-			if(Neutron->at(j) == -1) continue;  // with next nucleon
+			if(Neutron->at(j).first == -1) continue;  // with next nucleon
 		
-			G4ThreeVector p2 = NeutronMom->at(j);
+			G4ThreeVector p2 = Neutron->at(j).second;
 		
 			if(!this->Coalescence(p1,m1,p2,m2)) continue; // with next nucleon
 		
@@ -424,7 +478,7 @@ G4bool G4TheoFSGenerator::Coalescence(const G4ThreeVector& p1, G4double m1, cons
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-void G4TheoFSGenerator::PushDeuteron(G4int i, G4int j, const G4ThreeVector& p1, const G4ThreeVector& p2, G4ReactionProductVector * result, G4int charge) const
+void G4TheoFSGenerator::PushDeuteron(const G4ThreeVector& p1, const G4ThreeVector& p2, G4ReactionProductVector * result, G4int charge) const
 {
 
 	if(charge > 0) {
@@ -438,10 +492,10 @@ void G4TheoFSGenerator::PushDeuteron(G4int i, G4int j, const G4ThreeVector& p1, 
 		finaldeut->SetMomentum(pT);
 		finaldeut->SetTotalEnergy(E);
 		finaldeut->SetMass(massd);
-		//result->erase(result->begin()+i);
-		//result->erase(result->begin()+j);
 		result->push_back(finaldeut);
+
 	} else {
+
 		G4ParticleDefinition* antideuteron = G4ParticleTable::GetParticleTable()->FindAntiParticle("deuteron");	
 		G4ReactionProduct * finalantideut = new G4ReactionProduct();//theTransportResult->operator[](i);
 		finalantideut->SetDefinition(antideuteron);
@@ -452,8 +506,6 @@ void G4TheoFSGenerator::PushDeuteron(G4int i, G4int j, const G4ThreeVector& p1, 
 		finalantideut->SetMomentum(pT);
 		finalantideut->SetTotalEnergy(E);
 		finalantideut->SetMass(massd);
-		//result->erase(result->begin()+i);
-		//result->erase(result->begin()+j);
 		result->push_back(finalantideut);
 	}
 
@@ -463,7 +515,7 @@ void G4TheoFSGenerator::SetP0AntiDeuteron(const G4HadProjectile & thePrimary)
 {
 	//Colaescence condition just available for proton-A, antiproton-A collisions.
 
-	G4cout<<"Projectile: "<<thePrimary.GetDefinition()->GetParticleName()<<G4endl;
+	//G4cout<<"Projectile: "<<thePrimary.GetDefinition()->GetParticleName()<<G4endl;
 
 	if(std::abs(thePrimary.GetDefinition()->GetPDGEncoding())==2212) {
 
@@ -472,20 +524,21 @@ void G4TheoFSGenerator::SetP0AntiDeuteron(const G4HadProjectile & thePrimary)
 		G4double mproj = thePrimary.GetDefinition()->GetPDGMass();
 		G4double pz = thePrimary.Get4Momentum().z();
 		G4double rs = std::sqrt(this->GetS(0.0, 0.0, pz, mproj, 0.0, 0.0, 0.0, mproj));		
-		G4cout<<pz<<" "<<rs<<G4endl;
+		//G4cout<<pz<<" "<<rs<<G4endl;
 		//G4double A = 2.92*n+188.27;
 		//fP0 = A*std::tanh(0.0000226*rs);
 		if(thePrimary.GetDefinition()->GetPDGEncoding()==2212){
 
 			if(rs>6.){
-				fP0 = 188.5/(1+std::exp(6.09-std::log(0.001*rs)/0.48));
+				fP0 = 179.6/(1+std::exp(6.77-std::log(0.001*rs)/0.41));
 			} else fP0 = 0.0;
 
-		} else {
+		} 
+		else { fP0 = 0.0;
 
-			if(rs>4.){
-            	fP0 = 188.5/(1+std::exp(6.09-std::log(0.001*rs+2.)/0.48));
-			} else fP0 = 0.0;
+			//if(rs>4.){
+            //	fP0 = 188.5/(1+std::exp(6.09-std::log(0.001*rs+2.)/0.48));
+			//} else fP0 = 0.0;
 		}
 
 		if(fP0<0.0) fP0 = 0.0;
