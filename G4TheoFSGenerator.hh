@@ -78,10 +78,10 @@ class G4TheoFSGenerator : public G4HadronicInteraction
 	  G4double GetPcm(G4double p1x, G4double p1y, G4double p1z, G4double m1, G4double p2x, G4double p2y, G4double p2z, G4double mass2) const;
 	  G4double GetPcm(const G4ThreeVector& p1, G4double m1, const G4ThreeVector& p2, G4double mass2) const;
 	  G4ReactionProductVector * GenerateDeuterons(G4ReactionProductVector * result) const;
-	  G4int FindPartner(const G4ThreeVector& p1, G4double m1, vector<G4int> * Neutron, vector<G4ThreeVector> * NeutronMom, G4double m2) const;
+	  G4int FindPartner(const G4ThreeVector& p1, G4double m1, vector<std::pair<G4int, G4ThreeVector>> * Neutron, G4double m2) const;
 	  G4bool Coalescence( G4double p1x, G4double p1y, G4double p1z, G4double m1, G4double p2x, G4double p2y, G4double p2z, G4double mass2) const;
 	  G4bool Coalescence(const G4ThreeVector& p1, G4double m1, const G4ThreeVector& p2, G4double mass2) const;
-	  void PushDeuteron(G4int i, G4int j, const G4ThreeVector& p1, const G4ThreeVector& p2, G4ReactionProductVector * result, G4int charge) const;
+	  void PushDeuteron(const G4ThreeVector& p1, const G4ThreeVector& p2, G4ReactionProductVector * result, G4int charge) const;
 
   private:
       const G4VIntraNuclearTransportModel * GetTransport() const;
