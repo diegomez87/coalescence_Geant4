@@ -73,15 +73,15 @@ class G4TheoFSGenerator : public G4HadronicInteraction
       virtual std::pair<G4double, G4double> GetEnergyMomentumCheckLevels() const;
       void ModelDescription(std::ostream& outFile) const;
 
-	  void SetP0AntiDeuteron(const G4HadProjectile & thePrimary);
+	  void SetP0Coalescence(const G4HadProjectile & thePrimary, G4String Model);
       G4double GetS(G4double p1x, G4double p1y, G4double p1z, G4double m1, G4double p2x, G4double p2y, G4double p2z, G4double mass2) const;
 	  G4double GetPcm(G4double p1x, G4double p1y, G4double p1z, G4double m1, G4double p2x, G4double p2y, G4double p2z, G4double mass2) const;
 	  G4double GetPcm(const G4ThreeVector& p1, G4double m1, const G4ThreeVector& p2, G4double mass2) const;
 	  G4ReactionProductVector * GenerateDeuterons(G4ReactionProductVector * result) const;
-	  G4int FindPartner(const G4ThreeVector& p1, G4double m1, vector<G4int> * Neutron, vector<G4ThreeVector> * NeutronMom, G4double m2) const;
-	  G4bool Coalescence( G4double p1x, G4double p1y, G4double p1z, G4double m1, G4double p2x, G4double p2y, G4double p2z, G4double mass2) const;
-	  G4bool Coalescence(const G4ThreeVector& p1, G4double m1, const G4ThreeVector& p2, G4double mass2) const;
-	  void PushDeuteron(G4int i, G4int j, const G4ThreeVector& p1, const G4ThreeVector& p2, G4ReactionProductVector * result, G4int charge) const;
+	  G4int FindPartner(const G4ThreeVector& p1, G4double m1, vector<std::pair<G4int, G4ThreeVector>> * Neutron, G4double m2, G4int charge) const;
+	  G4bool Coalescence( G4double p1x, G4double p1y, G4double p1z, G4double m1, G4double p2x, G4double p2y, G4double p2z, G4double mass2, G4int charge) const;
+	  G4bool Coalescence(const G4ThreeVector& p1, G4double m1, const G4ThreeVector& p2, G4double mass2, G4int charge) const;
+	  void PushDeuteron(const G4ThreeVector& p1, const G4ThreeVector& p2, G4ReactionProductVector * result, G4int charge) const;
 
   private:
       const G4VIntraNuclearTransportModel * GetTransport() const;
@@ -95,7 +95,8 @@ class G4TheoFSGenerator : public G4HadronicInteraction
       G4HadFinalState * theParticleChange;
       G4QuasiElasticChannel * theQuasielastic;
 
-	  G4double fP0;
+	  G4double fP0_d;
+	  G4double fP0_dbar;
 };
 
 inline const G4VIntraNuclearTransportModel * G4TheoFSGenerator::GetTransport() const
@@ -128,10 +129,6 @@ inline const G4HadFinalState * G4TheoFSGenerator::GetFinalState() const
   return theParticleChange;
 }
 
-//inline const G4double G4TheoFSGenerator::GetP0AntiDeuteron() const
-//{
-//  return fP0;
-//}
 
 #endif
 
